@@ -47,7 +47,11 @@ const Signup = () => {
             {/* textinputs and button */}
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Email</Text>
-              <TextInput placeholder="john@example.com" style={styles.input} />
+              <TextInput
+                placeholder="john@example.com"
+                style={styles.input}
+                placeholderTextColor="#1c1c1c"
+              />
 
               <View style={{height: 20}} />
               <Text style={styles.label}>Password</Text>
@@ -55,6 +59,7 @@ const Signup = () => {
                 placeholder="********"
                 secureTextEntry={true}
                 style={styles.input}
+                placeholderTextColor="#1c1c1c"
               />
             </View>
 
@@ -72,7 +77,7 @@ const Signup = () => {
                 onPress={() => {
                   openLogin();
                 }}>
-                <Text>Already have an account?</Text>
+                <Text style={styles.label}>Already have an account?</Text>
                 <Text style={styles.registertext}>Login</Text>
               </TouchableOpacity>
             </View>

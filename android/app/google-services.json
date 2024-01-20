@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "36023359957",
+    "project_id": "cash-pay-387ef",
+    "storage_bucket": "cash-pay-387ef.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:36023359957:android:f13d1b5697bb089f98455c",
+        "android_client_info": {
+          "package_name": "com.cashpay"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBJpge_H26EcgCU3BqXXshwZQ6DGm7JObw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

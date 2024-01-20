@@ -21,6 +21,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '600',
     textAlign: 'center',
+    color: '#000',
   },
   subtitle: {
     fontSize: 14,
@@ -37,6 +38,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     marginBottom: 4,
+    color: '#000',
   },
   input: {
     height: 40,
@@ -44,11 +46,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#e6e3e1',
     borderBottomColor: 'black',
     borderBottomWidth: 1,
+    color: '#000',
   },
   loginText: {
     fontSize: 26,
     fontWeight: 'bold',
     alignSelf: 'center',
+    color: '#000',
   },
   loginButton: {
     backgroundColor: 'green', // Adjust the color based on your design

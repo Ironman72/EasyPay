@@ -15,14 +15,15 @@ import banner from '../../../assets/loginpic.png';
 import {useNavigation} from '@react-navigation/native';
 
 const Login = () => {
-  const navigate = useNavigation();
+  const navigation = useNavigation();
   const handleLogin = () => {
     // Add your login logic here
-    Alert.alert('Login', 'Bro add login Functionality');
+    // Alert.alert('Login', 'Bro add login Functionality');
+    navigation.navigate('home');
   };
 
   const openSignup = () => {
-    navigate.navigate('signup');
+    navigation.navigate('signup');
   };
 
   return (
@@ -48,7 +49,11 @@ const Login = () => {
             {/* textinputs and button */}
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Email</Text>
-              <TextInput placeholder="john@example.com" style={styles.input} />
+              <TextInput
+                placeholder="john@example.com"
+                style={styles.input}
+                placeholderTextColor="#1c1c1c"
+              />
 
               <View style={{height: 20}} />
               <Text style={styles.label}>Password</Text>
@@ -56,6 +61,7 @@ const Login = () => {
                 placeholder="********"
                 secureTextEntry={true}
                 style={styles.input}
+                placeholderTextColor="#1c1c1c"
               />
             </View>
 
@@ -73,7 +79,7 @@ const Login = () => {
                 onPress={() => {
                   openSignup();
                 }}>
-                <Text>Don't have an account?</Text>
+                <Text style={styles.label}>Don't have an account?</Text>
                 <Text style={styles.registertext}>Register</Text>
               </TouchableOpacity>
             </View>
