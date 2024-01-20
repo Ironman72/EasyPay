@@ -8,22 +8,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonContainer: {
-    flexDirection: 'row',
     justifyContent: 'space-around',
     width: '80%',
+    gap: 10,
   },
   button: {
-    width: 120,
-    height: 120,
+    width: '90%',
+    height: 50,
     borderRadius: 15,
-    elevation: 5, // For Android shadow
-    shadowColor: '#000', // For iOS shadow
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.5,
-    shadowRadius: 3,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 5,
+    borderWidth: 1,
+    backgroundColor: '#fff',
+    elevation: 1,
+    marginBottom: 10,
+    marginTop: 10,
+    flexDirection: 'row',
+    columnGap: 10,
   },
   scanToPayButton: {
     backgroundColor: '#fff',
@@ -39,8 +41,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   image: {
-    height: 40,
-    width: 40,
+    height: 30,
+    width: 30,
     resizeMode: 'contain',
   },
 

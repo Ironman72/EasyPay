@@ -9,21 +9,47 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
-import React from 'react';
+import React, {useContext, useState} from 'react';
 import styles from './Styles';
 import banner from '../../../assets/loginpic.png';
 import {useNavigation} from '@react-navigation/native';
+import {AuthContext} from '../../../context/AuthContext';
 
 const Login = () => {
   const navigation = useNavigation();
-  const handleLogin = () => {
-    // Add your login logic here
-    // Alert.alert('Login', 'Bro add login Functionality');
-    navigation.navigate('home');
+  const {login} = useContext(AuthContext);
+  const [loading, setLoading] = useState(false);
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const isValidEmail = email => {
+    // Your email validation logic here
+    return /\S+@\S+\.\S+/.test(email);
+  };
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert('Error', 'Please fill in all fields');
+    } else if (!isValidEmail(email)) {
+      Alert.alert('Error', 'Please enter a valid email address');
+    } else if (password.length < 8) {
+      Alert.alert('Error', 'Password must be at least 8 characters long');
+    } else {
+      try {
+        setLoading(true);
+        await login(email, password);
+        setLoading(false);
+      } catch (error) {
+        setLoading(false);
+        let errorCode = error.code.split('auth/')[1];
+        Alert.alert('Error', errorCode);
+      }
+    }
   };
 
   const openSignup = () => {
-    navigation.navigate('signup');
+    navigation.navigate('Signup');
   };
 
   return (
@@ -38,7 +64,7 @@ const Login = () => {
             {/* image and title */}
             <View style={styles.titleContainer}>
               <Image source={banner} style={styles.banner} />
-              <Text style={styles.title}>Easy Pay</Text>
+              <Text style={styles.title}>Cash Pay</Text>
               <Text style={styles.subtitle}>
                 Hassle-free payments on the go.
               </Text>
@@ -53,6 +79,10 @@ const Login = () => {
                 placeholder="john@example.com"
                 style={styles.input}
                 placeholderTextColor="#1c1c1c"
+                value={email}
+                onChangeText={text => {
+                  setEmail(text);
+                }}
               />
 
               <View style={{height: 20}} />
@@ -62,6 +92,10 @@ const Login = () => {
                 secureTextEntry={true}
                 style={styles.input}
                 placeholderTextColor="#1c1c1c"
+                value={password}
+                onChangeText={text => {
+                  setPassword(text);
+                }}
               />
             </View>
 
@@ -69,7 +103,9 @@ const Login = () => {
             <TouchableOpacity
               style={styles.loginButton}
               onPress={() => handleLogin()}>
-              <Text style={styles.loginButtonText}>Login</Text>
+              <Text style={styles.loginButtonText}>
+                  Login
+              </Text>
             </TouchableOpacity>
 
             {/* link to register */}

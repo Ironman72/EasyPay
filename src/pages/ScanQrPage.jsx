@@ -1,39 +1,97 @@
-import React, { useState } from 'react';
-import { View, TextInput, Button, Alert, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import React, { useState, useEffect, useContext } from 'react';
+import { View, TextInput, Alert, StyleSheet, TouchableOpacity, Text, Button } from 'react-native';
 import QRCodeScanner from 'react-native-qrcode-scanner';
 import { RNCamera } from 'react-native-camera';
 import { useNavigation } from '@react-navigation/native';
+import firestore from '@react-native-firebase/firestore';
+import { AuthContext } from '../context/AuthContext';
 
 const ScanQrPage = () => {
+  const { user } = useContext(AuthContext);
+  console.log(user.email, 'line 11')
   const [scannedData, setScannedData] = useState(null);
-  const [amount, setAmount] = useState(''); // Set initial state to empty string
-  const navigation = useNavigation()
+  const [amount, setAmount] = useState('');
+  const [payeeData, setPayeeData] = useState(null);
+  const [recieverId, setRecieverId] = useState('');
+  const navigation = useNavigation();
+
+
+
+
 
   const handleBarcodeScanned = ({ data }) => {
     // Validate the scanned data (replace 'valid_data' with your validation logic)
-    if (data === 'pradeepkumar') {
-      setScannedData(data);
-    } else {
-      Alert.alert('Invalid QR Code');
+    setScannedData(data);
+    console.log(data, 'line 23')
+  };
+
+
+  const findReceiverDetails = async () => {
+    try {
+      const querySnapshot = await firestore().collection('users').where('name', '==', scannedData).get();
+
+      if (querySnapshot.empty) {
+        console.log('No matching documents.');
+        return;
+      }
+
+      querySnapshot.forEach((doc) => {
+        // Access the data and document ID of each document
+        const data = doc.data();
+        const docId = doc.id;
+
+        // Set the payee data including the document ID
+        setPayeeData({ ...data, docId });
+        setRecieverId(docId)
+      });
+    } catch (error) {
+      console.error('Error finding receiver details:', error);
     }
   };
 
-  const payAmount = () => {
-    // Assuming the user enters the amount to pay in the TextInput
-    const paymentAmount = parseFloat(amount);
 
-    if (!isNaN(paymentAmount) && paymentAmount > 0 && paymentAmount <= 500) {
-      const remainingBalance = 500 - paymentAmount;
-      Alert.alert(`Payment Successful!\nAmount Paid: ${paymentAmount} Rs\nRemaining Balance: ${remainingBalance} Rs`);
-      console.log(`Payment Successful!\nAmount Paid: ${paymentAmount} Rs\nRemaining Balance: ${remainingBalance} Rs`);
-      setAmount('');
-      setScannedData('');
-      navigation.goBack();
-    } else {
-      Alert.alert('Insufficent Balance. Please enter a valid amount to pay.');
+  useEffect(() => {
+    findReceiverDetails()
+  }, [scannedData])
+
+  const makePayment = async (senderId, receiverDocId, amount) => {
+    try {
+      const senderRef = firestore().collection('users').doc(senderId);
+      const receiverRef = firestore().collection('users').doc(receiverDocId);
+
+      // Use transactions for atomicity
+      await firestore().runTransaction(async (transaction) => {
+        const senderDoc = await transaction.get(senderRef);
+        const receiverDoc = await transaction.get(receiverRef);
+
+        const senderAmount = senderDoc.data().amount || 0; // Default to 0 if 'amount' is undefined
+        const numericAmount = parseFloat(amount);
+
+        if (isNaN(numericAmount) || numericAmount <= 0) {
+          throw new Error('Invalid payment amount');
+        }
+
+        if (senderAmount < numericAmount) {
+          Alert.alert('Insufficient funds');
+        }
+
+        // Update sender's amount with numerical subtraction
+        transaction.update(senderRef, { amount: senderAmount - numericAmount });
+
+        // Increase receiver's amount by the payment
+        const currentReceiverAmount = receiverDoc.data().amount || 0;
+        const newReceiverAmount = currentReceiverAmount + numericAmount;
+        transaction.update(receiverRef, { amount: newReceiverAmount });
+        Alert.alert('Success', `Your Payment of Rs.${amount} Succesfull`)
+        navigation.goBack()
+      });
+    } catch (error) {
+      Alert.alert(error.message); // Display an alert for the specific error
     }
-
   };
+
+
+
 
 
   const renderTextInputAndButton = () => {
@@ -47,23 +105,26 @@ const ScanQrPage = () => {
             setAmount(text);
           }}
           keyboardType="numeric"
-
-        // Add TextInput props as needed
+          placeholderTextColor='#000'
         />
         <View style={styles.infoContainer}>
-          <Text>Paying to: {`${scannedData}.cashpay.com`}</Text>
+          <Text style={{ color: '#000' }}>Paying to: {scannedData}</Text>
         </View>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => {
-            // Handle button press, you can perform any action here
-            payAmount()
-          }}>
-          <Text style={styles.buttonText}>Pay</Text>
-        </TouchableOpacity>
+        {payeeData && user && (
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => {
+              // Handle button press, you can perform any action here
+
+              makePayment(user.uid, recieverId, amount);
+            }}>
+            <Text style={styles.buttonText}>Pay</Text>
+          </TouchableOpacity>
+        )}
       </View>
     );
   };
+
 
   return (
     <View style={styles.container}>
@@ -102,7 +163,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     paddingHorizontal: 10,
     borderRadius: 5,
-    backgroundColor: '#F2F0EF'
+    backgroundColor: '#F2F0EF',
+    color: '#000'
   },
   button: {
     backgroundColor: '#000',
@@ -110,7 +172,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     alignItems: 'center',
     marginTop: 10,
-    marginBottom: 10
+    marginBottom: 10,
   },
   buttonText: {
     color: '#fff',
@@ -121,8 +183,8 @@ const styles = StyleSheet.create({
     marginTop: 5,
     marginBottom: 5,
     padding: 5,
-    backgroundColor: '#F2F0EF'
-  }
+    backgroundColor: '#F2F0EF',
+  },
 });
 
 export default ScanQrPage;

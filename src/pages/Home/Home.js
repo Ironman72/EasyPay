@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {
   View,
   Text,
@@ -10,74 +10,141 @@ import {
 } from 'react-native';
 import styles from './Styles'; // Adjust the import path based on your project structure
 import qrImage from '../../assets/qr.png';
+import scan from '../../assets/scan.png';
 import bankImage from '../../assets/bank.png';
+import logoutImage from '../../assets/logout.png';
 import {useNavigation} from '@react-navigation/native';
-import auth from '@react-native-firebase/auth';
-
+import {AuthContext} from '../../context/AuthContext';
+import firestore from '@react-native-firebase/firestore';
 const Home = () => {
   const navigation = useNavigation();
   const [amount, setAmount] = useState('500');
   const [showActivityIndicator, setShowActivityIndicator] = useState(false);
   const [showBalanceModal, setShowBalanceModal] = useState(false);
+  const [loading, setIsLoading] = useState(false);
+
+  const {logout, user} = useContext(AuthContext);
 
   const openScan = () => {
     navigation.navigate('scan');
   };
 
-  const checkBalance = () => {
-    // Show the activity indicator
-    setShowActivityIndicator(true);
+  const checkBalance = async () => {
+    try {
+      // Show the activity indicator
+      setShowActivityIndicator(true);
 
-    // Simulate an asynchronous operation (e.g., fetching balance)
-    setTimeout(() => {
-      // Hide the activity indicator
+      // Fetch user data from Firestore
+      const userData = await getUserData(user.uid);
+
+      if (userData) {
+        // Set the amount in the state
+        setAmount(userData.amount || 0); // Default to 0 if 'amount' is undefined
+
+        // Hide the activity indicator
+        setShowActivityIndicator(false);
+
+        // Show the balance modal
+        setShowBalanceModal(true);
+      } else {
+        // Handle the case when user data is not available
+        setShowActivityIndicator(false);
+        Alert.alert('Error fetching user data', 'Please try again later.');
+      }
+    } catch (error) {
+      console.error('Error checking balance:', error.message);
+      // Handle error if needed
       setShowActivityIndicator(false);
-
-      // Show the balance modal after 4-5 seconds
-      setShowBalanceModal(true);
-    }, 4000); // Adjust the delay as needed
+      Alert.alert('Error', 'An error occurred. Please try again later.');
+    }
   };
 
   const closeModal = () => {
     setShowBalanceModal(false);
   };
 
-  const testFunc = async () => {
-    auth()
-      .createUserWithEmailAndPassword('test@gmail.com', 'virus1997')
-      .then(() => {
-        Alert.alert('Success', 'User Created Brah');
-      })
-      .catch(e => {
-        console.log(e, 'check it');
-      });
+  const getUserData = async uid => {
+    try {
+      const userDoc = await firestore().collection('users').doc(uid).get();
+
+      if (userDoc.exists) {
+        const userData = userDoc.data();
+        console.log('User data:', userData);
+        return userData;
+      } else {
+        console.log('User document does not exist.');
+        return null;
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error.message);
+      return null;
+    }
   };
 
+  const signout = async () => {
+    Alert.alert('Confirm Logout', 'Are you sure you want to log out?', [
+      {
+        text: 'Cancel',
+        style: 'cancel',
+      },
+      {
+        text: 'OK',
+        onPress: async () => {
+          try {
+            setIsLoading(true); // Start the loading indicator
+            await logout();
+            // Perform additional actions after successful logout
+          } catch (error) {
+            console.error('Error logging out:', error);
+            // Handle logout error if needed
+          } finally {
+            setIsLoading(false); // Stop the loading indicator
+          }
+        },
+      },
+    ]);
+  };
   return (
     <View style={styles.container}>
       <View style={styles.buttonContainer}>
-        {/* Scan to Pay */}
+        {/* recieve Payment */}
         <TouchableOpacity
-          style={[styles.button, styles.scanToPayButton]}
+          style={styles.button}
           onPress={() => {
-            // Handle Scan to Pay action
-            openScan();
+            navigation.navigate('generate');
           }}>
           <Image source={qrImage} style={styles.image} />
-          <Text style={styles.buttonText}>Scan to Pay</Text>
+          <Text style={styles.buttonText}>My Code</Text>
         </TouchableOpacity>
 
-        {/* Check Balance */}
+        {/* send payment */}
         <TouchableOpacity
-          style={[styles.button, styles.checkBalanceButton]}
+          style={styles.button}
           onPress={() => {
-            // Handle Check Balance action
-            console.log('Check Balance pressed');
-            // checkBalance();
-            testFunc();
+            openScan();
+          }}>
+          <Image source={scan} style={styles.image} />
+          <Text style={styles.buttonText}>Send Payment</Text>
+        </TouchableOpacity>
+
+        {/* check balance */}
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => {
+            checkBalance();
           }}>
           <Image source={bankImage} style={styles.image} />
-          <Text style={styles.buttonText}>Check Balance</Text>
+          <Text style={styles.buttonText}>check Balance</Text>
+        </TouchableOpacity>
+
+        {/* logout */}
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => {
+            signout();
+          }}>
+          <Image source={logoutImage} style={styles.image} />
+          <Text style={styles.buttonText}>Logout</Text>
         </TouchableOpacity>
       </View>
 
@@ -95,7 +162,7 @@ const Home = () => {
         visible={showBalanceModal}
         onRequestClose={() => setShowBalanceModal(false)}>
         <View style={styles.modalContainer}>
-          <Text>Your balance is {amount} Rs</Text>
+          <Text style={styles.buttonText}>Your balance is {amount} Rs</Text>
           <TouchableOpacity onPress={closeModal}>
             <Text style={styles.modalCloseText}>Close</Text>
           </TouchableOpacity>
