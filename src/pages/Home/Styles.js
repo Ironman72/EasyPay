@@ -8,10 +8,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonContainer: {
-    justifyContent: 'space-around',
+    justifyContent: 'center',
+    alignItems: 'center',
     width: '80%',
     gap: 10,
   },
+
   button: {
     width: '90%',
     height: 50,
@@ -25,7 +27,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginTop: 10,
     flexDirection: 'row',
-    columnGap: 10,
+    gap: 10,
   },
   scanToPayButton: {
     backgroundColor: '#fff',

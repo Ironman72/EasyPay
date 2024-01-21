@@ -37,6 +37,13 @@ const styles = StyleSheet.create({
     width: '90%',
     alignSelf: 'center',
   },
+  infoText:{
+    color:'#000',
+    marginTop:10,
+    marginBottom:20,
+    alignSelf:'center',
+    width:'90%'
+  }
 });
 
 export default styles;

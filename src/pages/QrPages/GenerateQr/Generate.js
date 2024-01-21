@@ -63,7 +63,7 @@ const Generate = () => {
       await firestore().collection('users').doc(user.uid).set({
         name: name,
         email: user.email,
-        amount: 1000 ,
+        amount: 1000,
       });
 
       console.log('User document created:', 'line 55');
@@ -86,7 +86,7 @@ const Generate = () => {
             <>
               <View style={{justifyContent: 'center', alignItems: 'center'}}>
                 <QRCode value={userData.name} size={200} />
-                <Text style={styles.label}>Share QR Code</Text>
+                <Text style={styles.label}>Share QR Code to recieve Payment's.</Text>
               </View>
             </>
           ) : (
@@ -94,7 +94,10 @@ const Generate = () => {
           )}
         </View>
       ) : (
-        <View>
+        <View style={{alignItems:'center',justifyContent:'center'}}>
+          <Text style={styles.infoText}>
+            Plese enter your name, its used as QRCode ID or UPI ID.
+          </Text>
           <TextInput
             placeholder="Enter Name"
             value={name}

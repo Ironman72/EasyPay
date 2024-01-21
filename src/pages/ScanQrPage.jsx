@@ -1,14 +1,12 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { View, TextInput, Alert, StyleSheet, TouchableOpacity, Text, Button } from 'react-native';
 import QRCodeScanner from 'react-native-qrcode-scanner';
-import { RNCamera } from 'react-native-camera';
 import { useNavigation } from '@react-navigation/native';
 import firestore from '@react-native-firebase/firestore';
 import { AuthContext } from '../context/AuthContext';
 
 const ScanQrPage = () => {
   const { user } = useContext(AuthContext);
-  console.log(user.email, 'line 11')
   const [scannedData, setScannedData] = useState(null);
   const [amount, setAmount] = useState('');
   const [payeeData, setPayeeData] = useState(null);
@@ -22,7 +20,6 @@ const ScanQrPage = () => {
   const handleBarcodeScanned = ({ data }) => {
     // Validate the scanned data (replace 'valid_data' with your validation logic)
     setScannedData(data);
-    console.log(data, 'line 23')
   };
 
 
@@ -131,7 +128,6 @@ const ScanQrPage = () => {
       {!scannedData ? (
         <QRCodeScanner
           onRead={handleBarcodeScanned}
-          flashMode={RNCamera.Constants.FlashMode.auto}
           reactivate
           reactivateTimeout={5000}
           showMarker
